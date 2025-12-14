@@ -1,0 +1,22 @@
+{
+  "title": "Dashboard",
+  "liveStats": {
+    "title": "Live Statistics",
+    "agents": "Agents",
+    "tools": "Tools Executed",
+    "tokens": "Tokens Used",
+    "cost": "Total Cost"
+  },
+  "activity": {
+    "title": "Activity Feed",
+    "noActivity": "No recent activity"
+  },
+  "agentTree": {
+    "title": "Agent Tree",
+    "noAgents": "No agents running"
+  },
+  "recentScans": {
+    "title": "Recent Scans",
+    "viewAll": "View All"
+  }
+}

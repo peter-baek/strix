@@ -21,6 +21,8 @@ from .models import (
     Severity,
 )
 from .websocket_manager import manager as ws_manager
+from .report_service import ReportService
+from .persistence import ScanPersistence
 
 
 class ScanManager:
@@ -32,6 +34,9 @@ class ScanManager:
         self._scan_tasks: dict[str, asyncio.Task] = {}
         self._next_execution_id: dict[str, int] = {}
         self._next_message_id: dict[str, int] = {}
+        self.report_service = ReportService()
+        self.persistence = ScanPersistence()
+        self._load_historical_scans()
 
     def create_scan(self, config: ScanConfig, name: str | None = None) -> ScanRun:
         """Create a new scan run."""
@@ -49,6 +54,61 @@ class ScanManager:
     def list_scans(self) -> list[ScanRun]:
         """List all scans."""
         return list(self.scans.values())
+
+    def _load_historical_scans(self):
+        """Load historical scans from file system"""
+        historical_scans = self.report_service.scan_filesystem()
+
+        for run_name, metadata in historical_scans.items():
+            # Check if we already have a scan ID for this run_name
+            existing_scan_id = self.persistence.get_scan_id(run_name)
+
+            if existing_scan_id and existing_scan_id in self.scans:
+                # Already loaded, update run_name if needed
+                if not self.scans[existing_scan_id].run_name:
+                    self.scans[existing_scan_id].run_name = run_name
+                continue
+
+            # Create a new scan entry for historical scan
+            scan_id = existing_scan_id or f"historical-{run_name}"
+
+            # Create a minimal scan config (we don't have the original)
+            config = ScanConfig(
+                targets=[],
+                user_instructions="",
+            )
+
+            # Determine status based on report presence
+            status = "completed" if metadata['has_report'] else "failed"
+
+            # Parse timestamp
+            try:
+                started_at = datetime.fromisoformat(metadata['generated_at'].replace(' UTC', ''))
+            except:
+                started_at = datetime.utcnow()
+
+            scan = ScanRun(
+                id=scan_id,
+                name=run_name,
+                config=config,
+                status=status,
+                started_at=started_at,
+                completed_at=started_at,
+                run_name=run_name,
+                is_historical=True,
+            )
+
+            # Load vulnerabilities count
+            scan.stats.agents = 1  # Assume one agent for historical scans
+            scan.stats.tools = metadata['vulnerabilities_count']
+
+            self.scans[scan_id] = scan
+            self.persistence.add_mapping(scan_id, run_name, {
+                'is_historical': True,
+                'loaded_at': datetime.now().isoformat()
+            })
+
+        print(f"Loaded {len(historical_scans)} historical scans from file system")
 
     async def start_scan(self, scan_id: str) -> bool:
         """Start a scan in the background."""
@@ -98,6 +158,33 @@ class ScanManager:
             scan_id, message_id, message, "user"
         )
         return True
+
+    def _find_latest_run_name(self, scan_id: str) -> str | None:
+        """Find the latest run directory created for this scan"""
+        try:
+            strix_runs_dir = self.report_service.strix_runs_dir
+
+            if not strix_runs_dir.exists():
+                return None
+
+            # Get all directories sorted by modification time
+            run_dirs = [
+                d for d in strix_runs_dir.iterdir()
+                if d.is_dir() and not d.name.startswith('.')
+            ]
+
+            if not run_dirs:
+                return None
+
+            # Sort by modification time (newest first)
+            run_dirs.sort(key=lambda d: d.stat().st_mtime, reverse=True)
+
+            # Return the newest directory name
+            return run_dirs[0].name
+
+        except Exception as e:
+            print(f"Error finding run_name for {scan_id}: {e}")
+            return None
 
     async def _run_scan(self, scan_id: str):
         """Run the actual scan using Strix CLI subprocess."""
@@ -241,6 +328,16 @@ class ScanManager:
 
             # Wait for process to complete
             return_code = await process.wait()
+
+            # Try to find the run_name from the file system
+            run_name = self._find_latest_run_name(scan_id)
+            if run_name:
+                scan.run_name = run_name
+                self.persistence.add_mapping(scan_id, run_name, {
+                    'is_historical': False,
+                    'completed_at': datetime.now().isoformat()
+                })
+                print(f"Scan {scan_id} completed with run_name: {run_name}")
 
             # Mark agent as completed
             scan.agents[root_agent_id].status = AgentStatus.COMPLETED

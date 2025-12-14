@@ -35,6 +35,14 @@ class Severity(str, Enum):
     INFO = "info"
 
 
+class ExportFormat(str, Enum):
+    MARKDOWN = "md"
+    JSON = "json"
+    CSV = "csv"
+    PDF = "pdf"
+    ZIP = "zip"
+
+
 class Target(BaseModel):
     type: TargetType
     value: str
@@ -46,6 +54,7 @@ class ScanConfig(BaseModel):
     user_instructions: str = ""
     llm_model: str = "openai/gpt-4o"
     max_iterations: int = 300
+    prompt_modules: list[str] | None = None
 
 
 class Agent(BaseModel):
@@ -108,6 +117,8 @@ class ScanRun(BaseModel):
     stats: LiveStats = Field(default_factory=LiveStats)
     started_at: datetime = Field(default_factory=datetime.utcnow)
     completed_at: datetime | None = None
+    run_name: str | None = None
+    is_historical: bool = False
 
 
 # WebSocket Event Types

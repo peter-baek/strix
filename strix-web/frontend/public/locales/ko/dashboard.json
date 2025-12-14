@@ -1,0 +1,22 @@
+{
+  "title": "대시보드",
+  "liveStats": {
+    "title": "실시간 통계",
+    "agents": "에이전트",
+    "tools": "도구 실행",
+    "tokens": "토큰 사용량",
+    "cost": "총 비용"
+  },
+  "activity": {
+    "title": "활동 피드",
+    "noActivity": "최근 활동이 없습니다"
+  },
+  "agentTree": {
+    "title": "에이전트 트리",
+    "noAgents": "실행 중인 에이전트가 없습니다"
+  },
+  "recentScans": {
+    "title": "최근 스캔",
+    "viewAll": "전체 보기"
+  }
+}

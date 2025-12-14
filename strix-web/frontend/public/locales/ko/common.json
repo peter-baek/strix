@@ -1,0 +1,36 @@
+{
+  "app": {
+    "name": "STRIX",
+    "tagline": "애플리케이션을 위한 오픈소스 AI 해커"
+  },
+  "actions": {
+    "startScan": "보안 스캔 시작",
+    "stopScan": "스캔 중지",
+    "newScan": "새 스캔",
+    "viewReport": "리포트 보기",
+    "download": "다운로드",
+    "export": "내보내기",
+    "close": "닫기",
+    "cancel": "취소",
+    "save": "저장",
+    "delete": "삭제"
+  },
+  "status": {
+    "running": "실행 중",
+    "completed": "완료",
+    "failed": "실패",
+    "stopped": "중지됨",
+    "pending": "대기 중"
+  },
+  "navigation": {
+    "dashboard": "대시보드",
+    "newScan": "새 스캔",
+    "scanHistory": "스캔 기록",
+    "vulnerabilities": "취약점",
+    "reports": "리포트"
+  },
+  "language": {
+    "english": "English",
+    "korean": "한국어"
+  }
+}

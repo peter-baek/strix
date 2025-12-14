@@ -1,0 +1,40 @@
+{
+  "title": "보안 스캔",
+  "newScan": {
+    "title": "새 보안 스캔",
+    "description": "새로운 보안 스캔 설정 및 시작",
+    "targetType": "대상 유형",
+    "targetValue": "대상",
+    "instructions": "추가 지시사항",
+    "instructionsPlaceholder": "구체적인 보안 테스트 지시사항을 입력하세요...",
+    "llmModel": "LLM 모델",
+    "maxIterations": "최대 반복 횟수",
+    "startScan": "스캔 시작"
+  },
+  "history": {
+    "title": "스캔 기록",
+    "noScans": "스캔 기록이 없습니다",
+    "scanId": "스캔 ID",
+    "target": "대상",
+    "status": "상태",
+    "started": "시작 시간",
+    "completed": "완료 시간",
+    "vulnerabilities": "취약점",
+    "agents": "에이전트"
+  },
+  "details": {
+    "title": "스캔 상세",
+    "overview": "개요",
+    "agents": "에이전트",
+    "tools": "도구",
+    "vulnerabilities": "취약점",
+    "chat": "채팅",
+    "stats": "통계"
+  },
+  "targetTypes": {
+    "repository": "Repository",
+    "localCode": "로컬 코드",
+    "webApplication": "웹 애플리케이션",
+    "ipAddress": "IP 주소"
+  }
+}

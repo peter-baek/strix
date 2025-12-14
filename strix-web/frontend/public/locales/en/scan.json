@@ -1,0 +1,40 @@
+{
+  "title": "Security Scan",
+  "newScan": {
+    "title": "New Security Scan",
+    "description": "Configure and start a new security scan",
+    "targetType": "Target Type",
+    "targetValue": "Target",
+    "instructions": "Additional Instructions",
+    "instructionsPlaceholder": "Provide specific security testing instructions...",
+    "llmModel": "LLM Model",
+    "maxIterations": "Max Iterations",
+    "startScan": "Start Scan"
+  },
+  "history": {
+    "title": "Scan History",
+    "noScans": "No scans found",
+    "scanId": "Scan ID",
+    "target": "Target",
+    "status": "Status",
+    "started": "Started",
+    "completed": "Completed",
+    "vulnerabilities": "Vulnerabilities",
+    "agents": "Agents"
+  },
+  "details": {
+    "title": "Scan Details",
+    "overview": "Overview",
+    "agents": "Agents",
+    "tools": "Tools",
+    "vulnerabilities": "Vulnerabilities",
+    "chat": "Chat",
+    "stats": "Statistics"
+  },
+  "targetTypes": {
+    "repository": "Repository",
+    "localCode": "Local Code",
+    "webApplication": "Web Application",
+    "ipAddress": "IP Address"
+  }
+}

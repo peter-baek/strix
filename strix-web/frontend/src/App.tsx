@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import NewScan from './pages/NewScan';
 import ScanHistory from './pages/ScanHistory';
 import Vulnerabilities from './pages/Vulnerabilities';
+import Reports from './pages/Reports';
 
 export default function App() {
   return (
@@ -14,6 +15,7 @@ export default function App() {
         <Route path="scans" element={<ScanHistory />} />
         <Route path="new" element={<NewScan />} />
         <Route path="scan/:scanId/vulnerabilities" element={<Vulnerabilities />} />
+        <Route path="scan/:scanId/reports" element={<Reports />} />
       </Route>
     </Routes>
   );

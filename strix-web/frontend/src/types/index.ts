@@ -71,6 +71,12 @@ export interface Vulnerability {
   timestamp: string;
 }
 
+// Extended vulnerability with file details
+export interface VulnerabilityDetail extends Vulnerability {
+  filePath?: string;
+  markdown?: string;
+}
+
 // Stats types
 export interface LiveStats {
   agents: number;
@@ -81,12 +87,47 @@ export interface LiveStats {
   output_tokens?: number;
 }
 
+// Report types
+export interface ScanReport {
+  summary: string;
+  vulnerabilities: VulnerabilityDetail[];
+  fullReport: string;
+  generatedAt: string;
+}
+
+export type ReportFormat = 'markdown' | 'json' | 'csv' | 'pdf';
+
+// Module selection types
+export interface Module {
+  id: string;
+  name: string;
+  category: string;
+  description: string;
+}
+
+export interface ModuleCategory {
+  id: string;
+  name: string;
+  icon: string;
+  modules: Module[];
+}
+
+export interface ScanTemplate {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  modules: string[];
+  defaultInstructions?: string;
+}
+
 // Scan types
 export interface ScanConfig {
   targets: Target[];
   user_instructions: string;
   llm_model: string;
   max_iterations: number;
+  prompt_modules?: string[];
 }
 
 export interface Scan {

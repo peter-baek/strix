@@ -1,0 +1,36 @@
+{
+  "app": {
+    "name": "STRIX",
+    "tagline": "Open-source AI Hackers for your Apps"
+  },
+  "actions": {
+    "startScan": "Start Security Scan",
+    "stopScan": "Stop Scan",
+    "newScan": "New Scan",
+    "viewReport": "View Report",
+    "download": "Download",
+    "export": "Export",
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete"
+  },
+  "status": {
+    "running": "Running",
+    "completed": "Completed",
+    "failed": "Failed",
+    "stopped": "Stopped",
+    "pending": "Pending"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "newScan": "New Scan",
+    "scanHistory": "Scan History",
+    "vulnerabilities": "Vulnerabilities",
+    "reports": "Reports"
+  },
+  "language": {
+    "english": "English",
+    "korean": "한국어"
+  }
+}

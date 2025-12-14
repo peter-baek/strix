@@ -2,12 +2,12 @@
 import os
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
-from .models import ScanConfig, Target, TargetType
+from .models import ScanConfig, Target, TargetType, ExportFormat
 from .scan_manager import scan_manager
 from .websocket_manager import manager as ws_manager
 
@@ -158,6 +158,100 @@ async def get_vulnerabilities(scan_id: str):
             "info": sum(1 for v in scan.vulnerabilities if v.severity.value == "info"),
         },
     }
+
+
+@app.get("/api/scans/{scan_id}/report")
+async def get_report(scan_id: str):
+    """Get the full markdown report for a scan."""
+    scan = scan_manager.get_scan(scan_id)
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+
+    # Check if scan has a run_name (completed scan with file system report)
+    if not scan.run_name:
+        raise HTTPException(status_code=404, detail="Report not yet available. Scan may still be running.")
+
+    # Get report content from file system
+    report_content = scan_manager.report_service.get_report_content(scan.run_name)
+    if not report_content:
+        raise HTTPException(status_code=404, detail="Report file not found")
+
+    # Get vulnerabilities list
+    vulnerabilities_list = scan_manager.report_service.list_vulnerabilities(scan.run_name)
+
+    return {
+        "report": report_content,
+        "vulnerabilities": vulnerabilities_list,
+        "run_name": scan.run_name,
+        "generated_at": scan.completed_at.isoformat() if scan.completed_at else None,
+    }
+
+
+@app.get("/api/scans/{scan_id}/export")
+async def export_report(scan_id: str, format: str = "md"):
+    """Export report in the specified format (md, json, csv, pdf)."""
+    scan = scan_manager.get_scan(scan_id)
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+
+    if not scan.run_name:
+        raise HTTPException(status_code=404, detail="Report not yet available")
+
+    # Validate format
+    try:
+        export_format = ExportFormat(format.lower())
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid format. Supported: md, json, csv, pdf")
+
+    # Export to the specified format
+    export_bytes = scan_manager.report_service.export_to_format(scan.run_name, export_format.value)
+    if not export_bytes:
+        raise HTTPException(status_code=500, detail="Failed to export report")
+
+    # Determine content type and filename
+    content_types = {
+        "md": "text/markdown",
+        "json": "application/json",
+        "csv": "text/csv",
+        "pdf": "application/pdf",
+    }
+
+    extensions = {
+        "md": "md",
+        "json": "json",
+        "csv": "csv",
+        "pdf": "pdf",
+    }
+
+    content_type = content_types.get(export_format.value, "application/octet-stream")
+    extension = extensions.get(export_format.value, "txt")
+    filename = f"{scan.run_name}_report.{extension}"
+
+    return Response(
+        content=export_bytes,
+        media_type=content_type,
+        headers={
+            "Content-Disposition": f'attachment; filename="{filename}"'
+        }
+    )
+
+
+@app.get("/api/scans/{scan_id}/vulnerabilities/{vuln_id}/report")
+async def get_vulnerability_report(scan_id: str, vuln_id: str):
+    """Get detailed report for a specific vulnerability."""
+    scan = scan_manager.get_scan(scan_id)
+    if not scan:
+        raise HTTPException(status_code=404, detail="Scan not found")
+
+    if not scan.run_name:
+        raise HTTPException(status_code=404, detail="Report not yet available")
+
+    # Get vulnerability report from file system
+    vuln_report = scan_manager.report_service.get_vulnerability_report(scan.run_name, vuln_id)
+    if not vuln_report:
+        raise HTTPException(status_code=404, detail="Vulnerability report not found")
+
+    return vuln_report
 
 
 @app.websocket("/ws/{scan_id}")

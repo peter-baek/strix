@@ -1,11 +1,14 @@
 import { Link, Outlet, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Layout() {
   const location = useLocation();
+  const { t } = useTranslation('common');
 
   const navItems = [
-    { path: '/scans', label: 'Scan History', icon: '📋' },
-    { path: '/new', label: 'New Scan', icon: '🚀' },
+    { path: '/scans', label: t('navigation.scanHistory'), icon: '📋' },
+    { path: '/new', label: t('navigation.newScan'), icon: '🚀' },
   ];
 
   return (
@@ -15,10 +18,11 @@ export default function Layout() {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <span className="text-2xl">🦉</span>
-            <span className="text-xl font-bold text-accent-green">STRIX</span>
+            <span className="text-xl font-bold text-accent-green">{t('app.name')}</span>
           </Link>
 
           <nav className="flex items-center gap-4">
+            <LanguageSwitcher />
             {navItems.map((item) => (
               <Link
                 key={item.path}
